@@ -11,7 +11,6 @@ import TableCell from '@material-ui/core/TableCell';
 import TableContainer from '@material-ui/core/TableContainer';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
-import Avatar from '@material-ui/core/Avatar';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
 import { Link } from 'react-router-dom';
 
@@ -38,6 +37,7 @@ export default function UserList() {
   const classes = useStyles();
 
   const [users, setUsers] = useState([]);
+  const [selectedUser, setSelectedUser] = useState([]);
   useEffect(() => {
     UsersGet();
   }, []);
@@ -48,6 +48,7 @@ export default function UserList() {
       .then((result) => {
         setUsers(result);
       });
+    users.isChecked = false;
   };
 
   const UpdateUser = (id) => {
@@ -55,24 +56,85 @@ export default function UserList() {
   };
 
   const UserDelete = (id) => {
-    var data = {
-      id: id,
-    };
-    fetch('http://localhost:8086/delete', {
-      method: 'DELETE',
-      headers: {
-        Accept: 'application/form-data',
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify([data]),
-    })
-      .then((res) => res.json())
-      .then((result) => {
-        alert(result['message']);
-        if (result['status'] === 'ok') {
+    var check = window.confirm('Are you sure delete this song?');
+    if (check) {
+      var listId = [];
+      listId.push(id);
+      console.log(typeof id);
+      console.log(listId);
+      fetch('http://localhost:8086/delete', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(listId),
+      }).then((result) => {
+        console.log(result);
+        if (result.ok) {
+          alert('The song is deleted');
           UsersGet();
         }
       });
+    }
+  };
+
+  const handleAllChecked = (event) => {
+    const tempUser = users;
+    tempUser.forEach((user) => (user.isChecked = event.target.checked));
+    setUsers(tempUser);
+    setSelectedUser(tempUser.filter((item) => item.isChecked === true));
+    const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    for (var checkbox of checkboxes) {
+      checkbox.checked = event.target.checked;
+    }
+    console.log(tempUser);
+  };
+
+  const handleCheckChieldElement = (event) => {
+    const tempUser = users;
+    let tempSelectedUser = selectedUser;
+    tempUser.forEach((user) => {
+      if (user.id.toString() === event.target.value) {
+        if (!user.isChecked) {
+          user.isChecked = event.target.checked;
+          tempSelectedUser.push(user);
+        } else {
+          user.isChecked = event.target.checked;
+          tempSelectedUser = tempSelectedUser.filter(
+            (item) => item.isChecked === true,
+          );
+        }
+      }
+    });
+    console.log(tempSelectedUser);
+    setUsers(tempUser);
+    setSelectedUser(tempSelectedUser);
+  };
+
+  const multiDelete = (event) => {
+    var checked = window.confirm('Are you sure to delete them');
+    if (checked) {
+      let deletedUser;
+      let deleteTemp = [];
+      deletedUser = users.filter((tempUser) => tempUser.isChecked === true);
+      deletedUser.forEach((deletedUser) => deleteTemp.push(deletedUser.id));
+      fetch('http://localhost:8086/delete', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(deleteTemp),
+      }).then((result) => {
+        console.log(result);
+        if (result.ok) {
+          alert('Delete Success');
+          UsersGet();
+        }
+      });
+      let remainUsers;
+      remainUsers = users.filter((remainUser) => remainUser.isChecked !== true);
+      setUsers(remainUsers);
+    }
   };
 
   return (
@@ -99,7 +161,7 @@ export default function UserList() {
             </Box>
             <Box>
               {/* <Link to='/'> */}
-              <Button variant='contained' color='primary'>
+              <Button variant='contained' color='primary' onClick={multiDelete}>
                 DELETE
               </Button>
               {/* </Link> */}
@@ -109,6 +171,14 @@ export default function UserList() {
             <Table className={classes.table} aria-label='simple table'>
               <TableHead>
                 <TableRow>
+                  <TableCell>
+                    {' '}
+                    <input
+                      type='checkbox'
+                      id={`default-checkbox`}
+                      onClick={handleAllChecked}
+                    ></input>{' '}
+                  </TableCell>
                   <TableCell align='left'>Name</TableCell>
                   <TableCell align='center'>Generes</TableCell>
                   <TableCell align='left'>Action</TableCell>
@@ -116,7 +186,17 @@ export default function UserList() {
               </TableHead>
               <TableBody>
                 {users.map((user) => (
-                  <TableRow key={user.ID}>
+                  <TableRow key={user.id}>
+                    <TableCell>
+                      {' '}
+                      <input
+                        type='checkbox'
+                        id={`default-checkbox`}
+                        value={user.id}
+                        defaultChecked={user.isChecked}
+                        onClick={handleCheckChieldElement}
+                      ></input>{' '}
+                    </TableCell>
                     <TableCell align='left'>{user.name}</TableCell>
                     <TableCell align='center'>{user.generes}</TableCell>
                     <TableCell align='left'>
