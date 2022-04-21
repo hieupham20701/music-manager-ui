@@ -14,10 +14,6 @@ const useStyles = makeStyles((theme) => ({
     flexDirection: 'column',
     alignItems: 'center',
   },
-  avatar: {
-    margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main,
-  },
   form: {
     width: '100%', // Fix IE 11 issue.
     marginTop: theme.spacing(3),
@@ -97,6 +93,7 @@ export default function SongDetail() {
                 label='Name'
                 value={name}
                 onChange={(e) => setName(e.target.value)}
+                placeholder='Name'
                 autoFocus
               />
             </Grid>
@@ -110,6 +107,7 @@ export default function SongDetail() {
                 label='Generes'
                 value={generes}
                 onChange={(e) => setGenenes(e.target.value)}
+                placeholder='Generes'
               />
             </Grid>
           </Grid>

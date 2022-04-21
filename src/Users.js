@@ -179,9 +179,18 @@ export default function UserList() {
                       onClick={handleAllChecked}
                     ></input>{' '}
                   </TableCell>
-                  <TableCell align='left'>Name</TableCell>
-                  <TableCell align='center'>Generes</TableCell>
-                  <TableCell align='left'>Action</TableCell>
+                  <TableCell align='left'>
+                    {' '}
+                    <b>Name</b>{' '}
+                  </TableCell>
+                  <TableCell align='center'>
+                    {' '}
+                    <b>Generes</b>{' '}
+                  </TableCell>
+                  <TableCell align='left'>
+                    {' '}
+                    <b>Action</b>{' '}
+                  </TableCell>
                 </TableRow>
               </TableHead>
               <TableBody>

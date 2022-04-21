@@ -34,37 +34,46 @@ export default function UserCreate() {
 
   const handleSubmit = (event) => {
     event.preventDefault();
-    // var temp = {
-    //   name: name,
-    //   generes: generes,
-    // };
 
-    var file = document.querySelector('input[type="file"]').files[0];
+    const file = document.querySelector('input[type="file"]').files[0];
     console.log(file);
-    var newsong = new FormData();
-    newsong.append('file', file);
-    newsong.append('name', name);
-    newsong.append('generes', generes);
-    console.log(newsong);
-    // console.log(data);
-    // console.log(event);
-    // console.log(temp);
+    // errorMessage(file);
+    if (file === undefined) {
+      document.getElementById('fileError').innerHTML = 'Please choose file!';
+    } else {
+      document.getElementById('fileError').innerHTML = '';
+      var newsong = new FormData();
+      newsong.append('file', file);
+      newsong.append('name', name);
+      newsong.append('generes', generes);
+      console.log(newsong);
+      // console.log(data);
+      // console.log(event);
+      // console.log(temp);
 
-    fetch('http://localhost:8086/upload', {
-      // mode: 'no-cors',
-      method: 'POST',
-      body: newsong,
-    }).then((result) => {
-      console.log(result);
-      if (result.ok) {
-        alert('Upload Succes');
-        window.location.href = '/';
-      } else {
-        alert('Could not Upload');
-      }
-    });
+      fetch('http://localhost:8086/upload', {
+        // mode: 'no-cors',
+        method: 'POST',
+        body: newsong,
+      }).then((result) => {
+        console.log(result);
+        if (result.ok) {
+          alert('Upload Succes');
+          window.location.href = '/';
+        } else if (result.status === 500) {
+          alert('Please choose file mp3');
+        }
+      });
+    }
   };
 
+  const showfileName = (event) => {
+    var file = document.querySelector('input[type="file"]').files[0];
+    console.log(file);
+    if (file !== undefined) {
+      document.getElementById('fileError').innerHTML = file.name;
+    }
+  };
   return (
     <Container maxWidth='xs'>
       <div className={classes.paper}>
@@ -77,7 +86,7 @@ export default function UserCreate() {
           encType='multipart/form-data'
         >
           <Grid container spacing={2}>
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12}>
               <TextField
                 autoComplete='name'
                 name='name'
@@ -90,7 +99,7 @@ export default function UserCreate() {
                 autoFocus
               />
             </Grid>
-            <Grid item xs={12} sm={6}>
+            <Grid item xs={12}>
               <TextField
                 variant='outlined'
                 required
@@ -102,10 +111,18 @@ export default function UserCreate() {
             </Grid>
           </Grid>
           {/* file upload */}
+
           <Button variant='contained' component='label'>
             Upload File
-            <input id='file' type='file' hidden />
+            <input
+              id='file'
+              type='file'
+              hidden
+              accept='.mp3, .mp4'
+              onChange={showfileName}
+            />
           </Button>
+          <p id='fileError' style={{ color: 'red' }}></p>
           <Button
             type='submit'
             fullWidth
