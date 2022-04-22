@@ -27,7 +27,6 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 export default function UserCreate() {
-  // const [file, setFile] = useState('');
   const [name, setName] = useState('');
   const [generes, setGeneres] = useState('');
   const classes = useStyles();
@@ -36,10 +35,9 @@ export default function UserCreate() {
     event.preventDefault();
 
     const file = document.querySelector('input[type="file"]').files[0];
-    console.log(file);
-    // errorMessage(file);
-    if (file === undefined) {
-      document.getElementById('fileError').innerHTML = 'Please choose file!';
+    if (file === undefined || file.type !== 'audio/mpeg') {
+      document.getElementById('fileError').innerHTML =
+        'Please choose file .mp3 or .mp4!';
     } else {
       document.getElementById('fileError').innerHTML = '';
       var newsong = new FormData();
@@ -60,8 +58,10 @@ export default function UserCreate() {
         if (result.ok) {
           alert('Upload Succes');
           window.location.href = '/';
-        } else if (result.status === 500) {
+        } else if (result.status === 400) {
           alert('Please choose file mp3');
+        } else {
+          alert('Could not Upload!');
         }
       });
     }
@@ -69,7 +69,7 @@ export default function UserCreate() {
 
   const showfileName = (event) => {
     var file = document.querySelector('input[type="file"]').files[0];
-    console.log(file);
+    console.log(file.type);
     if (file !== undefined) {
       document.getElementById('fileError').innerHTML = file.name;
     }
@@ -122,7 +122,9 @@ export default function UserCreate() {
               onChange={showfileName}
             />
           </Button>
-          <p id='fileError' style={{ color: 'red' }}></p>
+          <p id='fileError' style={{ color: 'red' }}>
+            Please choose file .mp3 or .mp4
+          </p>
           <Button
             type='submit'
             fullWidth

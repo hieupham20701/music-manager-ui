@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
-import Typography from '@material-ui/core/Typography';
 import Button from '@material-ui/core/Button';
 import Container from '@material-ui/core/Container';
 import Paper from '@material-ui/core/Paper';
@@ -13,6 +12,7 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
 import { Link } from 'react-router-dom';
+import Pagination from '@material-ui/lab/Pagination';
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -35,18 +35,34 @@ const useStyles = makeStyles((theme) => ({
 
 export default function UserList() {
   const classes = useStyles();
-
+  const [searchName, setSearchName] = useState('');
   const [users, setUsers] = useState([]);
   const [selectedUser, setSelectedUser] = useState([]);
+  const [totalPage, setTotalPage] = useState();
+  const [totalItem, setTotalItem] = useState();
+  const [currentPage, setCurrentPage] = useState();
+  const [countSelected, setCountSelected] = useState();
+  if (currentPage === undefined) {
+    setCurrentPage(0);
+  }
   useEffect(() => {
+    if (currentPage === undefined) {
+      setCurrentPage(0);
+    }
     UsersGet();
-  }, []);
-
+  }, [currentPage, selectedUser]);
   const UsersGet = () => {
-    fetch('http://localhost:8086/files')
+    fetch(
+      'http://localhost:8086/files/pages?page=' +
+        currentPage +
+        '&nameSearch=' +
+        searchName,
+    )
       .then((res) => res.json())
       .then((result) => {
-        setUsers(result);
+        setTotalPage(result.totalPages);
+        setTotalItem(result.totalItems);
+        setUsers(result.musics);
       });
     users.isChecked = false;
   };
@@ -54,7 +70,6 @@ export default function UserList() {
   const UpdateUser = (id) => {
     window.location = '/update/' + id;
   };
-
   const UserDelete = (id) => {
     var check = window.confirm('Are you sure delete this song?');
     if (check) {
@@ -109,6 +124,7 @@ export default function UserList() {
     console.log(tempSelectedUser);
     setUsers(tempUser);
     setSelectedUser(tempSelectedUser);
+    setCountSelected(tempSelectedUser.length);
   };
 
   const multiDelete = (event) => {
@@ -137,21 +153,16 @@ export default function UserList() {
     }
   };
 
+  const handlePageChange = (event, value) => {
+    setCurrentPage(value - 1);
+
+    UsersGet();
+  };
   return (
     <div className={classes.root}>
       <Container className={classes.container} maxWidth='lg'>
         <Paper className={classes.paper}>
           <Box display='flex'>
-            <Box flexGrow={1}>
-              <Typography
-                component='h2'
-                variant='h6'
-                color='primary'
-                gutterBottom
-              >
-                SONGS
-              </Typography>
-            </Box>
             <Box>
               <Link to='/create'>
                 <Button variant='contained' color='primary'>
@@ -159,12 +170,28 @@ export default function UserList() {
                 </Button>
               </Link>
             </Box>
-            <Box>
+            <Box flexGrow={1}>
               {/* <Link to='/'> */}
               <Button variant='contained' color='primary' onClick={multiDelete}>
                 DELETE
               </Button>
               {/* </Link> */}
+            </Box>
+            <Box>
+              <input
+                type='text'
+                className='form-control'
+                placeholder='Search by Name'
+                // value={searchTitle}
+                onChange={(e) => {
+                  setSearchName(e.target.value);
+                }}
+              />
+            </Box>
+            <Box>
+              <Button variant='contained' color='secondary' onClick={UsersGet}>
+                Search
+              </Button>
             </Box>
           </Box>
           <TableContainer component={Paper}>
@@ -226,6 +253,20 @@ export default function UserList() {
               </TableBody>
             </Table>
           </TableContainer>
+          <Pagination
+            className='my-3'
+            count={totalPage}
+            page={currentPage + 1}
+            siblingCount={1}
+            boundaryCount={1}
+            variant='outlined'
+            shape='rounded'
+            onChange={handlePageChange}
+          />
+          <Box>
+            <b>Total Items: {totalItem}</b>
+            <p>Selected Item: {selectedUser.length}</p>
+          </Box>
         </Paper>
       </Container>
     </div>
