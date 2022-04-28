@@ -6,7 +6,7 @@ import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
 import { useParams } from 'react-router-dom';
-
+import PlayerAudio from './PlayerAudio';
 const useStyles = makeStyles((theme) => ({
   paper: {
     marginTop: theme.spacing(8),
@@ -37,8 +37,7 @@ export default function SongDetail() {
   const url = 'http://localhost:8086/files/' + id;
   const [name, setName] = useState('');
   const [generes, setGenenes] = useState('');
-  const [playing, toggle] = useAudio(url);
-  // console.log(file);
+  // const [playing, toggle] = useAudio(url);
   const handleClickEnebled = () => {
     if (isDisabled) {
       var con = window.confirm('Are you sure Edit this Song?');
@@ -58,7 +57,7 @@ export default function SongDetail() {
     song.append('name', name);
     song.append('generes', generes);
     console.log(song);
-    fetch('http://localhost:8086/upload/' + id, {
+    fetch('https://localhost:8086/upload/' + id, {
       method: 'PUT',
       body: song,
     }).then((result) => {
@@ -69,17 +68,24 @@ export default function SongDetail() {
     });
   };
   return (
-    <Container maxWidth='xs'>
+    <Container maxWidth='sm'>
       <div className={classes.paper}>
-        <Typography component='h1' variant='h5'>
+        <Typography component='h1' variant='h4'>
           Song Detail
         </Typography>
 
         <br></br>
-        <div>
+        {/* <div>
           <button onClick={toggle}>{playing ? 'Pause' : 'Play'}</button>
-        </div>
+        </div> */}
+
         <form className={classes.form} onSubmit={handleSubmit}>
+          {' '}
+          <div>
+            {/* <scrip>window.onload = function(){<PlayerAudio />}</scrip> */}
+            <PlayerAudio />
+            {/* <audio src={url} controls></audio> */}
+          </div>
           <Grid container spacing={2}>
             <Grid item xs={12}>
               <TextField
@@ -134,22 +140,22 @@ export default function SongDetail() {
     </Container>
   );
 }
-const useAudio = (url) => {
-  const [audio] = useState(new Audio(url));
-  const [playing, setPlaying] = useState(false);
+// const useAudio = (url) => {
+//   const [audio] = useState(new Audio(url));
+//   const [playing, setPlaying] = useState(false);
 
-  const toggle = () => setPlaying(!playing);
+//   const toggle = () => setPlaying(!playing);
 
-  useEffect(() => {
-    playing ? audio.play() : audio.pause();
-  }, [playing]);
+//   useEffect(() => {
+//     playing ? audio.play() : audio.pause();
+//   }, [playing]);
 
-  useEffect(() => {
-    audio.addEventListener('ended', () => setPlaying(false));
-    return () => {
-      audio.removeEventListener('ended', () => setPlaying(false));
-    };
-  }, []);
+//   useEffect(() => {
+//     audio.addEventListener('ended', () => setPlaying(false));
+//     return () => {
+//       audio.removeEventListener('ended', () => setPlaying(false));
+//     };
+//   }, []);
 
-  return [playing, toggle];
-};
+//   return [playing, toggle];
+// };
