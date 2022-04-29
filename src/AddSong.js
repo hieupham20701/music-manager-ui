@@ -5,7 +5,7 @@ import TextField from '@material-ui/core/TextField';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import Container from '@material-ui/core/Container';
-
+import Loading from './Loading';
 const useStyles = makeStyles((theme) => ({
   paper: {
     marginTop: theme.spacing(8),
@@ -30,7 +30,7 @@ export default function UserCreate() {
   const [name, setName] = useState('');
   const [generes, setGeneres] = useState('');
   const classes = useStyles();
-
+  const [loading, setLoading] = useState(false);
   const handleSubmit = (event) => {
     event.preventDefault();
 
@@ -64,7 +64,9 @@ export default function UserCreate() {
           alert('Could not Upload!');
         }
       });
+      setLoading(true);
     }
+    // setLoading(false);
   };
 
   const showfileName = (event) => {
@@ -74,68 +76,72 @@ export default function UserCreate() {
       document.getElementById('fileError').innerHTML = file.name;
     }
   };
-  return (
-    <Container maxWidth='xs'>
-      <div className={classes.paper}>
-        <Typography component='h1' variant='h5'>
-          SONG
-        </Typography>
-        <form
-          className={classes.form}
-          onSubmit={handleSubmit}
-          encType='multipart/form-data'
-        >
-          <Grid container spacing={2}>
-            <Grid item xs={12}>
-              <TextField
-                autoComplete='name'
-                name='name'
-                variant='outlined'
-                required
-                fullWidth
-                id='name'
-                label='Name'
-                onChange={(e) => setName(e.target.value)}
-                autoFocus
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <TextField
-                variant='outlined'
-                required
-                fullWidth
-                id='generes'
-                label='Generes'
-                onChange={(e) => setGeneres(e.target.value)}
-              />
-            </Grid>
-          </Grid>
-          {/* file upload */}
-
-          <Button variant='contained' component='label'>
-            Upload File
-            <input
-              id='file'
-              type='file'
-              hidden
-              accept='.mp3, .mp4'
-              onChange={showfileName}
-            />
-          </Button>
-          <p id='fileError' style={{ color: 'red' }}>
-            Please choose file .mp3 or .mp4
-          </p>
-          <Button
-            type='submit'
-            fullWidth
-            variant='contained'
-            color='primary'
-            className={classes.submit}
+  if (loading === false) {
+    return (
+      <Container maxWidth='xs'>
+        <div className={classes.paper}>
+          <Typography component='h1' variant='h5'>
+            SONG
+          </Typography>
+          <form
+            className={classes.form}
+            onSubmit={handleSubmit}
+            encType='multipart/form-data'
           >
-            Add Song
-          </Button>
-        </form>
-      </div>
-    </Container>
-  );
+            <Grid container spacing={2}>
+              <Grid item xs={12}>
+                <TextField
+                  autoComplete='name'
+                  name='name'
+                  variant='outlined'
+                  required
+                  fullWidth
+                  id='name'
+                  label='Name'
+                  onChange={(e) => setName(e.target.value)}
+                  autoFocus
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField
+                  variant='outlined'
+                  required
+                  fullWidth
+                  id='generes'
+                  label='Generes'
+                  onChange={(e) => setGeneres(e.target.value)}
+                />
+              </Grid>
+            </Grid>
+            {/* file upload */}
+
+            <Button variant='contained' component='label'>
+              Upload File
+              <input
+                id='file'
+                type='file'
+                hidden
+                accept='.mp3, .mp4'
+                onChange={showfileName}
+              />
+            </Button>
+            <p id='fileError' style={{ color: 'red' }}>
+              Please choose file .mp3 or .mp4
+            </p>
+            <Button
+              type='submit'
+              fullWidth
+              variant='contained'
+              color='primary'
+              className={classes.submit}
+            >
+              Add Song
+            </Button>
+          </form>
+        </div>
+      </Container>
+    );
+  } else {
+    return <Loading />;
+  }
 }

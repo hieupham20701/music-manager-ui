@@ -37,7 +37,7 @@ export default function SongDetail() {
   const url = 'http://localhost:8086/files/' + id;
   const [name, setName] = useState('');
   const [generes, setGenenes] = useState('');
-  // const [playing, toggle] = useAudio(url);
+
   const handleClickEnebled = () => {
     if (isDisabled) {
       var con = window.confirm('Are you sure Edit this Song?');
@@ -84,7 +84,6 @@ export default function SongDetail() {
           <div>
             {/* <scrip>window.onload = function(){<PlayerAudio />}</scrip> */}
             <PlayerAudio />
-            {/* <audio src={url} controls></audio> */}
           </div>
           <Grid container spacing={2}>
             <Grid item xs={12}>
@@ -140,22 +139,3 @@ export default function SongDetail() {
     </Container>
   );
 }
-// const useAudio = (url) => {
-//   const [audio] = useState(new Audio(url));
-//   const [playing, setPlaying] = useState(false);
-
-//   const toggle = () => setPlaying(!playing);
-
-//   useEffect(() => {
-//     playing ? audio.play() : audio.pause();
-//   }, [playing]);
-
-//   useEffect(() => {
-//     audio.addEventListener('ended', () => setPlaying(false));
-//     return () => {
-//       audio.removeEventListener('ended', () => setPlaying(false));
-//     };
-//   }, []);
-
-//   return [playing, toggle];
-// };

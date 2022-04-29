@@ -13,7 +13,7 @@ import TableRow from '@material-ui/core/TableRow';
 import ButtonGroup from '@material-ui/core/ButtonGroup';
 import { Link } from 'react-router-dom';
 import Pagination from '@material-ui/lab/Pagination';
-
+import LoadingScreen from 'react-loading-screen';
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
@@ -41,7 +41,8 @@ export default function UserList() {
   const [totalPage, setTotalPage] = useState();
   const [totalItem, setTotalItem] = useState();
   const [currentPage, setCurrentPage] = useState();
-  const [countSelected, setCountSelected] = useState();
+  const [countSelected, setCountSelected] = useState(0);
+  const [loading, setLoading] = useState(true);
   if (currentPage === undefined) {
     setCurrentPage(0);
   }
@@ -63,8 +64,9 @@ export default function UserList() {
         setTotalPage(result.totalPages);
         setTotalItem(result.totalItems);
         setUsers(result.musics);
+        setLoading(false);
       });
-    users.isChecked = false;
+    // users.isChecked = false;
   };
 
   const UpdateUser = (id) => {
@@ -95,14 +97,24 @@ export default function UserList() {
 
   const handleAllChecked = (event) => {
     const tempUser = users;
-    tempUser.forEach((user) => (user.isChecked = event.target.checked));
-    setUsers(tempUser);
-    setSelectedUser(tempUser.filter((item) => item.isChecked === true));
+    console.log(tempUser);
+    let tempSelectedUser = tempUser;
+    tempSelectedUser.forEach((user) => {
+      user.isChecked = event.target.checked;
+    });
+    tempSelectedUser = tempSelectedUser.filter(
+      (item) => item.isChecked === true,
+    );
     const checkboxes = document.querySelectorAll('input[type="checkbox"]');
     for (var checkbox of checkboxes) {
       checkbox.checked = event.target.checked;
     }
-    console.log(tempUser);
+    if (event.checked === true) {
+      setUsers(tempSelectedUser);
+    } else {
+      setUsers(tempUser);
+    }
+    setCountSelected(handleCountSelected);
   };
 
   const handleCheckChieldElement = (event) => {
@@ -123,17 +135,31 @@ export default function UserList() {
     });
     console.log(tempSelectedUser);
     setUsers(tempUser);
-    setSelectedUser(tempSelectedUser);
-    setCountSelected(tempSelectedUser.length);
+    setCountSelected(handleCountSelected);
   };
 
+  const handleCountSelected = (event) => {
+    let count = 0;
+    // const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+    const checkboxes = document.getElementsByClassName('item-checkbox');
+    for (var checkbox of checkboxes) {
+      if (checkbox.checked === true) {
+        count++;
+      }
+    }
+    console.log(count);
+    return count;
+  };
   const multiDelete = (event) => {
+    console.log(users);
     var checked = window.confirm('Are you sure to delete them');
     if (checked) {
       let deletedUser;
       let deleteTemp = [];
       deletedUser = users.filter((tempUser) => tempUser.isChecked === true);
       deletedUser.forEach((deletedUser) => deleteTemp.push(deletedUser.id));
+      console.log(deleteTemp);
+      console.log(deletedUser);
       fetch('http://localhost:8086/delete', {
         method: 'DELETE',
         headers: {
@@ -150,6 +176,9 @@ export default function UserList() {
       let remainUsers;
       remainUsers = users.filter((remainUser) => remainUser.isChecked !== true);
       setUsers(remainUsers);
+      setCountSelected(0);
+      let checkbox = document.getElementById('default-checkbox');
+      checkbox.checked = false;
     }
   };
 
@@ -158,8 +187,18 @@ export default function UserList() {
 
     UsersGet();
   };
+
   return (
     <div className={classes.root}>
+      <LoadingScreen
+        loading={loading}
+        bgColor='#f1f1f1'
+        spinnerColor='#9ee5f8'
+        textColor='#676767'
+        logoSrc='../../coding_club.png'
+        text='Wait a minute!'
+      ></LoadingScreen>
+
       <Container className={classes.container} maxWidth='lg'>
         <Paper className={classes.paper}>
           <Box display='flex'>
@@ -228,6 +267,7 @@ export default function UserList() {
                       <input
                         type='checkbox'
                         id={`default-checkbox`}
+                        className={'item-checkbox'}
                         value={user.id}
                         defaultChecked={user.isChecked}
                         onClick={handleCheckChieldElement}
@@ -265,7 +305,7 @@ export default function UserList() {
           />
           <Box>
             <b>Total Items: {totalItem}</b>
-            <p>Selected Item: {selectedUser.length}</p>
+            <p>Selected Item: {countSelected}</p>
           </Box>
         </Paper>
       </Container>
